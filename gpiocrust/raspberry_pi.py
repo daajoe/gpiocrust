@@ -4,8 +4,8 @@ import RPi.GPIO as GPIO
 
 class Header(object):
   """Controls initializing and cleaning up GPIO header."""
-  def __init__(self):
-    GPIO.setmode(GPIO.BOARD)
+  def __init__(self, mode=0):
+    GPIO.setmode(GPIO.BOARD if mode == 0 else GPIO.BCM)
   def __del__(self):
     GPIO.cleanup()
   def __enter__(self):
@@ -67,10 +67,19 @@ class PWMOutputPin(OutputPin):
 
 class InputPin(object):
   """A single GPIO pin set for input"""
-  def __init__(self, pin, value=0, callback=None, bouncetime=0):
+  def __init__(self, pin, value=0, watch=0, callback=None, bouncetime=0):
     self._pin = int(pin)
     GPIO.setup(self._pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN if value == 0 else GPIO.PUD_UP)
-    GPIO.add_event_detect(self._pin, GPIO.BOTH, bouncetime=bouncetime)
+    if watch == -1:
+      gpio_watch = GPIO.FALLING
+    elif watch == 0:
+      gpio_watch = GPIO.BOTH
+    elif watch == 1:
+      gpio_watch = GPIO.RISING
+    else:
+      raise ValueError('Unkown Value (valid -1 .. FALLING, 0 .. BOTH, 1 .. RISING')
+
+    GPIO.add_event_detect(self._pin, gpio_watch, bouncetime=bouncetime)
     if callback is not None:
       GPIO.add_event_callback(self._pin, callback)
 

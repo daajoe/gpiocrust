@@ -4,7 +4,7 @@ applications while not on the Pi itself.
 """
 
 class Header(object):
-  def __init__(self):
+  def __init__(self, mode=0):
     pass
   def __del__(self):
     pass
@@ -56,7 +56,7 @@ class PWMOutputPin(OutputPin):
 
 
 class InputPin(object):
-  def __init__(self, pin, value=0, callback=None, bouncetime=0):
+  def __init__(self, pin, value=0, watch=0, callback=None, bouncetime=0):
     self._pin = int(pin)
     self._value = value
     self._callback = callback
